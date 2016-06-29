@@ -8,7 +8,7 @@ The function should:
 * Have callback as last parameter
 * Callback takes (err, ...results) as parameters
 
-** Examples
+Examples
 
 Promisify a context free function:
 
