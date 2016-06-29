@@ -1,0 +1,28 @@
+{
+  "name": "pmfy",
+  "version": "1.0.0",
+  "description": "Turns async function into Promise using terse ES6 syntax",
+  "main": "pmfy.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mhzed/pmfy"
+  },
+  "keywords": [
+    "promisify",
+    "es6",
+    "terse"
+  ],
+  "devDependencies" : {
+  } ,
+  "author": {
+    "name": "Zed Zhou",
+    "email": "mhzedd@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mhzd/pmfy/issues"
+  },
+  "homepage": "https://github.com/mhzd/pmfy"
+}
