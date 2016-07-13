@@ -42,3 +42,22 @@ You can also promisify an entire package, example:
 
 When promisifying a package, it's assumed that all functions with name not ending in 'Sync' are async
 functions.
+
+Often it's useful to add a timeout to wait for async callback, for example when wait for network reply.  
+Then you can do:
+
+    const timedOutWait = pmfyAuto.timeOut(100, waitForData);
+    timedOutWait().catch((err)=>{   // err is an Error object with time out message, if 100ms elapsed before cb
+    
+    }).then(()=>{});
+
+A test example:
+
+    let future = require("phuture");
+    
+    const waitForMax100ms = pmfyAuto.timeOut(100, future.once);
+    
+    waitForMax100ms(200).catch((err)=>{
+      console.log(err); // should timeout since 100<200
+    }).then(()=>{
+    })

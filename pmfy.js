@@ -1,12 +1,22 @@
 
+let future = require("phuture");
+
 let pmfyFunc = function(fn, ctx) {
   return function(...fargs) {
     if (!(ctx === undefined || ctx === null)) fn = fn.bind(ctx);
     return new Promise((res, rej) => {
-      fn(...fargs, (err, data)=> {
-        if (err) rej(err);
-        else res(data);
-      })
+      try {
+        fn(...fargs, (err, ...data)=> {
+          if (err) rej(err);
+          else {
+            // if resolve multiple parameters, bundle as one array
+            if (data.length == 1) res(data[0]);
+            else res(data);
+          }
+        })
+      } catch (e) {
+        rej(e);
+      }
     });
   }
 }
@@ -23,6 +33,40 @@ let pmfyAuto = function(p, ctx) {
     return p;
   }
   else return undefined;
+}
+
+pmfyAuto.timeOut = function(mswait, fn, ctx) {
+  return function(...fargs) {
+    if (!(ctx === undefined || ctx === null)) fn = fn.bind(ctx);
+    return new Promise((res, rej) => {
+      let once = false;
+      future.once(mswait, ()=>{
+        if (!once) {
+          once = true;
+          rej(new Error('Timed out after ' + mswait + 'ms'));
+        }
+      })
+
+      try {
+        fn(...fargs, (err, ...data)=> {
+          if (!once) {
+            once = true;
+            if (err) rej(err);
+            else {
+              // if resolve multiple parameters, bundle as one array
+              if (data.length == 1) res(data[0]);
+              else res(data);
+            }
+          }
+        })
+      } catch (e) {
+        if (!once) {
+          once = true;
+          rej(e);
+        }
+      }
+    });
+  }
 }
 
 module.exports = pmfyAuto
