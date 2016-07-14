@@ -1,6 +1,6 @@
 {
   "name": "pmfy",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Turns async function into Promise using terse ES6 syntax",
   "main": "pmfy.js",
   "scripts": {},

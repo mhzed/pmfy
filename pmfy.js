@@ -25,12 +25,13 @@ let pmfyAuto = function(p, ctx) {
   "use strict";
   if (p instanceof Function) return pmfyFunc(p, ctx);
   else if (p instanceof Object) {
+    let ret = {};
     for (let k in p) {
       if (!/Sync$/.test(k) && p[k] instanceof Function) {
-        p[k] = pmfyFunc(p[k]);
-      }
+        ret[k] = pmfyFunc(p[k]);
+      } else ret[k] = p[k];
     }
-    return p;
+    return ret;
   }
   else return undefined;
 }
