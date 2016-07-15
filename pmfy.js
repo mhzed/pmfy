@@ -28,7 +28,7 @@ let pmfyAuto = function(p, ctx) {
     let ret = {};
     for (let k in p) {
       if (!/Sync$/.test(k) && p[k] instanceof Function) {
-        ret[k] = pmfyFunc(p[k]);
+        ret[k] = pmfyFunc(p[k], ctx);
       } else ret[k] = p[k];
     }
     return ret;
@@ -40,18 +40,28 @@ pmfyAuto.timeOut = function(mswait, fn, ctx) {
   return function(...fargs) {
     if (!(ctx === undefined || ctx === null)) fn = fn.bind(ctx);
     return new Promise((res, rej) => {
+
       let once = false;
-      future.once(mswait, ()=>{
+      let task;
+      const checkOnce = ()=>{
         if (!once) {
           once = true;
-          rej(new Error('Timed out after ' + mswait + 'ms'));
-        }
-      })
+          if (task) task.cancel();
+          return true;
+        } else return false;
+      }
+
+      if (mswait > 0)
+        task = future.once(mswait, ()=>{
+          if (checkOnce()) {
+            rej(new Error('Timed out after ' + mswait + 'ms'));
+          }
+        })
 
       try {
         fn(...fargs, (err, ...data)=> {
-          if (!once) {
-            once = true;
+          if (checkOnce()) {
+
             if (err) rej(err);
             else {
               // if resolve multiple parameters, bundle as one array
@@ -61,8 +71,7 @@ pmfyAuto.timeOut = function(mswait, fn, ctx) {
           }
         })
       } catch (e) {
-        if (!once) {
-          once = true;
+        if (checkOnce()) {
           rej(e);
         }
       }

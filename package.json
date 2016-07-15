@@ -1,6 +1,6 @@
 {
   "name": "pmfy",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Turns async function into Promise using terse ES6 syntax",
   "main": "pmfy.js",
   "scripts": {},
@@ -24,6 +24,6 @@
   },
   "homepage": "https://github.com/mhzd/pmfy",
   "dependencies": {
-    "phuture": "^1.0.2"
+    "phuture": "^1.0.3"
   }
 }
