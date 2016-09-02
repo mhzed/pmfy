@@ -2,8 +2,8 @@
 let future = require("phuture");
 
 let pmfyFunc = function(fn, ctx) {
+  if (!(ctx === undefined || ctx === null)) fn = fn.bind(ctx);
   return function(...fargs) {
-    if (!(ctx === undefined || ctx === null)) fn = fn.bind(ctx);
     return new Promise((res, rej) => {
       try {
         fn(...fargs, (err, ...data)=> {
@@ -36,7 +36,7 @@ let pmfyAuto = function(p, ctx) {
   else return undefined;
 }
 
-pmfyAuto.timeOut = function(mswait, fn, ctx) {
+timeOutWrapFunc = function(mswait, fn, ctx) {
   return function(...fargs) {
     if (!(ctx === undefined || ctx === null)) fn = fn.bind(ctx);
     return new Promise((res, rej) => {
@@ -54,7 +54,7 @@ pmfyAuto.timeOut = function(mswait, fn, ctx) {
       if (mswait > 0)
         task = future.once(mswait, ()=>{
           if (checkOnce()) {
-            rej(new Error('Timed out after ' + mswait + 'ms'));
+            rej(new Error('Timed out after ' + mswait + ' ms'));
           }
         })
 
@@ -78,5 +78,45 @@ pmfyAuto.timeOut = function(mswait, fn, ctx) {
     });
   }
 }
+
+timeOutWrapPromise = function(mswait, promise) {
+  return new Promise((res, rej) => {
+    let once = false;
+    let task;
+    const checkOnce = ()=>{
+      if (!once) {
+        once = true;
+        if (task) task.cancel();
+        return true;
+      } else return false;
+    }
+
+    if (mswait > 0)
+      task = future.once(mswait, ()=>{
+        if (checkOnce()) {
+          rej(new Error('Timed out after ' + mswait + ' ms'));
+        }
+      })
+
+    promise.catch((err)=>{
+      "use strict";
+      if (checkOnce()) {
+        rej(err);
+      }
+    }).then((...args)=>{
+      if (checkOnce()) {
+        if (args.length == 1) res(args[0]);
+        else res(args);
+      }
+    })
+
+  });
+}
+
+pmfyAuto.timeOut = function(mswait, fn, ctx) {
+  if (typeof fn.then === 'function') return timeOutWrapPromise(mswait, fn);
+  else return timeOutWrapFunc(mswait, fn, ctx);
+}
+
 
 module.exports = pmfyAuto
